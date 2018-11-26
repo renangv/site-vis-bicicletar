@@ -1,0 +1,29 @@
+Narrativa:
+
+
+1 - index.html: Contém dois botões que direciona ou para a narrativa ou para a lista de visualizações
+## Grupo 1: Visualizações das estações ##
+2 - g1_vis0_aboutBicicletar.html: texto introdutório com informações sobre o Bicicletar, as bicicletas e suas estações;
+3 - g1_vis1_terminaisBicicletar.html: Visualização com as estações nos pontos do mapa;
+4 - g1_vis2_implantacoesPorEtapa.html: Visualização que mostra quais estações foram implantadas em quais etapas;
+5 - g1_vis3_terminaisPorBairro.html: Visualização com o número de estações por bairro;
+
+
+
+## Grupo 2: Visualizações das viagens ##
+6 - g2_vis0_aboutViagens.html: contém informações sobre as viagens, como categorizamos, como excluimos etc.
+7 - g2_vis1_numDeViagensPorDia.html: Visualização que mostra as viagens por todos os dias
+8 - g2_vis2_numDeViagensPorDiaDaSemana.html: Visualização que mostra as viagens por dia da semana
+9 - g2_vis3_numDeViagensDiasWorkNotWorkingDay.html: Visualização que mostra as viagens por dias úteis e não úteis;
+10 - g2_vis4_tempoViagens.html: Visualização que mostra as viagens por hora e turno (min, med,max);
+11 - g2_vis5_ViagensCondicoesClimaticas.html: Visualização que mostra as viagens e sua corelação com as condições climáticas
+12 - g2_vis6_OrigensDestinos.html: Visualização que mostra as viagens por par estação origem/destino
+
+## Grupo 3: Visualizações dos usuários ##
+12 - 6 - g2_vis0_aboutUsuários.html: contém informações sobre o perfil dos usuários, idade, sexo, comportamento médio, etc e como processamos essas informações;
+
+13 - Sexo (DADOS OK)
+14 - Idade
+15 -   c) Distribuição do número de viagens por usuário
+16 -   d) Perfil dos usuários + e - ativos
+  e) Tipo de Acesso (cartão ou aplicativo)
