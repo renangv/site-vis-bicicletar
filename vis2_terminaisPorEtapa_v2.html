@@ -67,133 +67,95 @@
 </div>
 <script type="text/javascript" src="data/bairros.js"></script>
 <script type="text/javascript">
-    
-	// Criação do Mapa
-    let map = L.map('map').setView([-3.742614,-38.5035877], 12);
-
-	L.tileLayer("https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png",
-	{ attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attribution">CARTO</a>',
-	maxZoom: 18, minZoom: 8}).addTo(map);
+    d3.csv("data/bicicletar/estacoes_bicicletar.csv").then(function (data) {	
 		
-	// Criação dos markers e layer
+		// Criação do Mapa
+    	let map = L.map('map').setView([-3.742614,-38.5035877], 12);
+
+		L.tileLayer("https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png",
+		{ attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attribution">CARTO</a>',
+		maxZoom: 18, minZoom: 8}).addTo(map);
+		
+		// Criação dos markers e layer
 	
-	var markers = d3.map();
-    var markerLayer = L.layerGroup();
+		var markers = d3.map();
+    	var markerLayer = L.layerGroup();
     
-    //ids
-    var idDimension, idGrouping;
+    	//Facts e Dimensions
 
-	let stationsMap = d3.map();
+    	let facts = crossfilter(data);
+    	var etapasDimension = facts.dimension(function(d) {return d.etapa});
+    	// var etapasDimension = facts.dimension(function(d) {return d.etapa});
+    	// etapasDimension.filter(1);
 
-	d3.csv("data/bicicletar/estacoes_bicicletar.csv").then(function (data) {	
+    	// var idDimension = facts.dimension(function(d) {return d.id;});        	
+	   	// var idGrouping = idDimension.group(function(id) {return id;});    
+	   	// console.log('oi',idGrouping.all());	  	
 
+    	
+    	
+    	// etapasDimension.filter(1);
+    	// var uniqueetapa = etapasDimension.group(function(id) {return id;});      	
+    	// console.log('oi',uniqueetapa.all());
+		
+    	//Cores das estações por etapa
 		let colorScale = d3.scaleOrdinal()
                               .domain([1,2,3,4,5])
                               .range(["#3cb44b", "#ffe119", "#f58231", "#46f0f0", "#f032e6"]);	
 
-		data.forEach(function(d){  		  
-		  let circle = L.circle([d.lat,d.lon],100, {
-		    color: colorScale(d.etapa),
-		    weight: 2,
-		    fillColor: colorScale(d.etapa),
-		    fillOpacity: 0.5        
-		  }).addTo(map);	
-		  circle.bindPopup(d.id + ' - ' + d.nome_estacao );
-		  markers.set(d.id, circle);        
-		  //}         	      
-		});        
-		//console.log(markers)
+        let pointsLayer = L.layerGroup().addTo(map);
 
-    	let facts = crossfilter(data);
-
-    	idDimension = facts.dimension(function(d) { return d.id; });
-    	idGrouping = idDimension.group(function(id) { return id; });  
-
-
-    	let pointsLayer = L.layerGroup().addTo(map);
-   		for (let d of data) {
-      		pointsLayer.addLayer(
-        		L.circle([d.lat, d.lon], { color: colorScale(d.etapa) })
-      		);
-    	}
-
+        for (let d of data) {
+    		let c = L.circle([d.lat, d.lon], 100, { 
+        			color: colorScale(d.etapa),
+        			weight: 2,
+		    		fillColor: colorScale(d.etapa),
+		    		fillOpacity: 0.5		    
+        		});
+    		c.bindPopup(d.id + ' - ' + d.nome_estacao );
+      		pointsLayer.addLayer(c);      		
+    	}	
+		
     	facts.onChange(() =>{
       		pointsLayer.clearLayers();
       		for (let d of facts.allFiltered()) {
         		pointsLayer.addLayer(
-        		L.circle([d.lat, d.lon], { color: colorScale(d.tipo) })
-        		);
+          		L.circle([d.lat, d.lon], { color: colorScale(d.etapa) })
+        		);        		
       		}
-    	});  	  
-    });		
+    	});	
 
-	function updateMarkers() {
-    	var e = document.getElementById("selectPeriodo");
-    	var f = document.getElementById("selectEtapa");
-    	var periodo = e.options[e.selectedIndex].value;
-    	var etapas = f.options[f.selectedIndex].value;	        
+    	window.updateMarkers = function(){
+    		var e = document.getElementById("selectPeriodo");
+    		var f = document.getElementById("selectEtapa");
+    		var periodo = e.options[e.selectedIndex].value;
+    		var etapas = f.options[f.selectedIndex].value;	        
 
-    	if ((periodo != "") && (etapas != "" )){
-    		console.log(periodo,etapas)
-    		d3.csv("data/bicicletar/estacoes_bicicletar.csv").then(function (data) {
-	    		
-	    		let facts = crossfilter(data);
+            if ((periodo != "") && (etapas != "" )){  				
+				if(periodo=='exclusivamente'){
+					etapasDimension.filter(+etapas);					
+				} else{
+					etapasDimension.filter([1,(+etapas)+1]);					
+				}
 
-      			idDimension = facts.dimension(function(d) { return d.id; });
-      			idGrouping = idDimension.group(function(id) { return id; });
-      			
-      			etapasDimension = facts.dimension(function(d) {return d.etapa});	
-      			etapasGrouping = etapasDimension.group(function(etapa) { return etapa; });
+    			// etapasDimension.filter(1);
+    		}
+			//idDimension.filter() = facts.dimension(function(d) { if return d.id; })
 
-      			console.log(etapasGrouping.all())
+    		//var etapasDimension = facts.dimension(function(d){return d.etapa});
+    		//var etapasGrouping = etapasDimension.group(function(d){return d});
 
-	    		//let facts = crossfilter(data);
-	    		//idDimension = facts.dimension(function(d){return d.id});	
-	    		
-	    		//#idEtapas = facts.dimension(function(d){return });	
-	    		/*
-	    		if (periodo == 'ate'){
-	    			idEtapas.filter(d => +d <= +etapa);	
-	    		} else{
-	    			idEtapas.filter(d => +d == +etapa);	
-	    		}
-	    		*/
-	    		//console.log(idEtapas.all());
-	    		//etapas = [1,2,3,4,5]
 
-	    		/*
-	    		if (periodo == 'ate'){
-	    			
-	    		} else {
-	    			idDimension = facts.dimension(function(d) { if (d.id==etapa) {return d.id}; });	
-	    		}
-	    		*/
-	    		//idGrouping = idDimension.group(function(id) { return id; });
+    		//console.log(etapasGrouping.all());
 
-	    		//idGrouping = idDimension.group(function(id) {id}); 
-
-	    		//console.log(idGrouping.all());
-	    		   		
-				var ids = idGrouping.all();
-	        	var todisplay = new Array(ids.length); //preallocate array to be faster
-	        	var mc = 0; //counter of used positions in the array	        	
-	        	for (var i = 0; i < ids.length; i++){
-	          		var tId = ids[i];
-	          		if(tId.value > 0){ //when an element is filtered, it has value > 0
-	            		todisplay[mc] = markers.get(tId.key);
-	            		mc = mc + 1;
-	          		}
-	        	}
-	        	todisplay.length = mc; //resize the array so Leaflet does not complain
-	        	markerLayer.clearLayers(); //remove markers in layerGroup
-	        	if (map.hasLayer(markerLayer)){
-	          		map.removeLayer(markerLayer); //remove layerGroup if present
-	        	}
-        	markerLayer = L.layerGroup(todisplay).addTo(map); //add it again passing the array of markers
-    	});
-    }    			
-} 		
-
+    		// if ((periodo != "") && (etapas != "" )){
+    		if (periodo && etapas){
+    			// if (periodo==
+    			console.log(periodo,etapas);
+    		}
+    	}
+    });  
+  
     dc.renderAll();
     
 </script>

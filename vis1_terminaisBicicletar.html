@@ -59,126 +59,30 @@
 </div>
 <script type="text/javascript" src="data/bairros.js"></script>
 <script type="text/javascript">
-    let blues = d3.schemeBlues[5];
-	
+    	
 	let map = L.map('map').setView([-3.742614,-38.5035877], 12);
 
 	L.tileLayer("https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png",
 	{ attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attribution">CARTO</a>',
 	maxZoom: 18, minZoom: 8}).addTo(map);
 
-	//L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-      //          attribution: '&copy; <a href="http://www.openstreetmap.org/">OpenStreetMap</a> contributors',
-	//L.tileLayer("https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png",
-	//{ attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attribution">CARTO</a>',
-	//maxZoom: 18}).addTo(map);
-	
-	// control that shows state info on hover
-	let info = L.control();
+	let stationsMap = d3.map();
 
-	info.onAdd = function (map) {
-		this._div = L.DomUtil.create('div', 'info');
-		this.update();
-		return this._div;
-	};
+	d3.csv("data/bicicletar/estacoes_bicicletar.csv").then(function (data) {
 
-	info.update = function (feat) {
-            //console.log(feat);
-			this._div.innerHTML = '<h5>Número de homicídios</h5>' +  (feat ?
-				'<b>' + feat.properties.NOME + '</b><br />' + homicidiosByName.get(feat.properties.NOME) + ' homicídios'
-				: 'Passe o mouse sobre um bairro');
-	};
-
-	info.addTo(map);
-	
-	// get color depending on number of cases
-	let quantize = d3.scaleQuantize()
-    .domain([0, 70])
-    .range(blues);
-
-	function style(feature) {
-		 return {
-					weight: 1,
-					opacity: 1,
-					//color: 'white',
-					dashArray: '3',
-					fillOpacity: 0//,
-					//fillColor: quantize(homicidiosByName.get(feature.properties.NOME))
-				};
-	}
-	function highlightFeature(e) {
-		let layer = e.target;
-        //console.log(e.target)
-
-		layer.setStyle({
-					weight: 2,
-					color: '#AAA',
-					sdashArray: '',
-					fillOpacity: 0.7
-		});
-
-		if (!L.Browser.ie && !L.Browser.opera) {
-			layer.bringToFront();
-		}
-
-		info.update(layer.feature);
-	}
-	let geojson;
-
-	function resetHighlight(e) {
-		geojson.resetStyle(e.target);
-		info.update();
-	}
-
-	function zoomToFeature(e) {
-		map.fitBounds(e.target.getBounds());
-	}
-
-	function onEachFeature(feature, layer) {
-		layer.on({
-					mouseover: highlightFeature,
-					mouseout: resetHighlight,
-					click: zoomToFeature
-				});
-	}
-    let homicidiosByName = d3.map();
-
-		d3.csv("data/bicicletar/estacoes_bicicletar.csv").then(function (data) {
-
-	    data.forEach(function(d){      
-	      let circle = L.circle([d.lat,d.lon],100, {
-	        color: "blue",
-	        weight: 2,
-	        fillColor: "blue",
-	        fillOpacity: 0.5        
-	      }).addTo(map);
-	      circle.bindPopup(d.id + ' - ' + d.nome_estacao );        
-	    });    
+    data.forEach(function(d){      
+      let circle = L.circle([d.lat,d.lon],100, {
+        color: "blue",
+        weight: 2,
+        fillColor: "blue",
+        fillOpacity: 0.5        
+      }).addTo(map);
+      circle.bindPopup(d.id + ' - ' + d.nome_estacao );        
+    });    
     
     });			
 	
-	let legend = L.control({position: 'bottomright'});
 
-	legend.onAdd = function (map) {
-
-		let div = L.DomUtil.create('div', 'info legend'),
-			labels = [],
-            n = blues.length,
-			from, to;
-
-		for (let i = 0; i < n; i++) {
-			let c = blues[i];
-            let fromto = quantize.invertExtent(c);
-			labels.push(
-				'<i style="background:' + blues[i] + '"></i> ' +
-				d3.format("d")(fromto[0]) + (d3.format("d")(fromto[1]) ? '&ndash;' + d3.format("d")(fromto[1]) : '+'));
-		}
-
-		div.innerHTML = labels.join('<br>');
-		return div;
-	};
-
-   	//legend.addTo(map);
 </script>
 
 <!-- Bootstrap javascript files -->
@@ -188,6 +92,6 @@
 
 	<button onclick="location.href='index.html'" class="button" style="vertical-align:middle" title="Descubra as informações do bicicletar na sequencia sugerida pelos desenvolvedores"><span>Anterior </span></button>
 
-	<button onclick="location.href='vis2_terminaisPorEtapa_v1.html'" class="button" style="vertical-align:middle" title="Vis1: Terminais em Fortaleza"><span>Próximo </span></button>
+	<button onclick="location.href='vis2_terminaisPorEtapa_v2.html'" class="button" style="vertical-align:middle" title="Vis1: Terminais em Fortaleza"><span>Próximo </span></button>
 </body>
 </html>
