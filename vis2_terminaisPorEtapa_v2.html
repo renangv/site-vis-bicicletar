@@ -3,8 +3,9 @@
 <head>
 	<title>Terminais implantados por Etapa</title>
 
-	 <link rel="stylesheet" href="css/dc.min.css">
+	<link rel="stylesheet" href="css/dc.min.css">
     <link rel="stylesheet" href="css/styles.css">
+
     <script src="js/crossfilter.min.js"></script>
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="js/dc.min.js"></script>
@@ -112,47 +113,33 @@
 		    		fillColor: colorScale(d.etapa),
 		    		fillOpacity: 0.5		    
         		});
-    		c.bindPopup(d.id + ' - ' + d.nome_estacao );
+    		c.bindPopup(d.etapa+ ', - ' + d.id + ' - ' + d.nome_estacao );
       		pointsLayer.addLayer(c);      		
     	}	
-		
-    	facts.onChange(() =>{
+	
+	   	facts.onChange(() =>{   
+    		var e = +document.getElementById("sliderEtapas").value;	    		
+		   	
+		   	let colorScale2 = d3.scaleOrdinal()
+                              .domain([false,true])
+                              .range(["blue", "red"]);  
+
       		pointsLayer.clearLayers();
-      		for (let d of facts.allFiltered()) {
-        		pointsLayer.addLayer(
-          		L.circle([d.lat, d.lon], { color: colorScale(d.etapa) })
-        		);        		
+      		for (let d of facts.allFiltered()) {       			     		        			
+      			let c = L.circle([d.lat, d.lon], 100, { 
+        			color: colorScale2(e==d.etapa),
+        			weight: 2,
+		    		fillColor: colorScale2(e==d.etapa),
+		    		fillOpacity: 0.5		    
+        		});
+        		c.bindPopup(d.etapa+ ', - ' + d.id + ' - ' + d.nome_estacao );
+        		pointsLayer.addLayer(c);        		
       		}
     	});	
 
     	window.updateMarkers = function(){
-    		var e = document.getElementById("selectPeriodo");
-    		var f = document.getElementById("selectEtapa");
-    		var periodo = e.options[e.selectedIndex].value;
-    		var etapas = f.options[f.selectedIndex].value;	        
-
-            if ((periodo != "") && (etapas != "" )){  				
-				if(periodo=='exclusivamente'){
-					etapasDimension.filter(+etapas);					
-				} else{
-					etapasDimension.filter([1,(+etapas)+1]);					
-				}
-
-    			// etapasDimension.filter(1);
-    		}
-			//idDimension.filter() = facts.dimension(function(d) { if return d.id; })
-
-    		//var etapasDimension = facts.dimension(function(d){return d.etapa});
-    		//var etapasGrouping = etapasDimension.group(function(d){return d});
-
-
-    		//console.log(etapasGrouping.all());
-
-    		// if ((periodo != "") && (etapas != "" )){
-    		if (periodo && etapas){
-    			// if (periodo==
-    			console.log(periodo,etapas);
-    		}
+    		var e = +document.getElementById("sliderEtapas").value;	    		
+			etapasDimension.filter([1,e+1]); 			
     	}
     });  
   
@@ -165,22 +152,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 
-	<p> Estações implantadas
-	<select id="selectPeriodo" onchange="updateMarkers()">
-		<option value="" selected disabled hidden>Escolha aqui</option>
-  		<option value="ate">Até a</option>
-  		<option value="exclusivamente">Exclusivamente na</option>  		
-	</select> 
-	
-	<select id="selectEtapa" onchange="updateMarkers()">
-		<option value="" selected disabled hidden>Escolha aqui</option>	
-  		<option value="1">Etapa 1</option>
-  		<option value="2">Etapa 2</option>  		
-  		<option value="3">Etapa 3</option>
-  		<option value="4">Etapa 4</option>
-  		<option value="5">Etapa 5</option>
-	</select> 	
-	</p>
+    <div class="center" >
+  		<input id="sliderEtapas" onchange="updateMarkers()" type="range" min="1" max="5" value="5" class="slider">
+	</div>
 
 	<button onclick="addNewStations()" class="button" style="vertical-align:middle" title="Descubra as informações do bicicletar na sequencia sugerida pelos desenvolvedores"><span>Proxima etapa </span></button>
 
